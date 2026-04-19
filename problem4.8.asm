@@ -1,84 +1,58 @@
-.model small
-.stack 100h
 
-.data
-msg1 db '?$'
-msg2 db 13,10,'THE SUM OF $'
-msg3 db ' AND $'
-msg4 db ' IS: $'
-msg5 db 13,10,'INVALID (SUM >= 10)$'
+; Problem Statement : Write a program to (a) display a "?", (b) read two decimal digits whose sum is less than 10, 
+;(c) display them and their sum on the next line, with an appropriate message.
+; Sample execution:
+; ?27
+; THE SUM OF 2 AND 7 IS 9
 
-.code
-main:
-    mov ax, @data
-    mov ds, ax
+.MODEL SMALL
+.STACK 100H
 
-    ; print ?
-    mov dl, '?'
-    mov ah, 02h
-    int 21h
+.DATA
+    PRINT DB '?','$'
+    MSG1 DB 0DH, 0AH, "THE SUM OF "
+    VAR1 DB ?
+    MSG2 DB " AND "
+    VAR2 DB ?
+    MSG3 DB " IS "
+    SUM  DB ?
+    DB '$'
 
-    ; input 1st digit
-    mov ah, 01h
-    int 21h
-    sub al, '0'
-    mov bl, al
+.CODE
+MAIN PROC
+    MOV AX, @DATA
+    MOV DS, AX
 
-    ; input 2nd digit
-    mov ah, 01h
-    int 21h
-    sub al, '0'
-    mov bh, al
+    ; (a) "?" ???????? ???
+    MOV AH, 9
+    LEA DX, PRINT
+    INT 21H
 
-    ; sum
-    mov al, bl
-    add al, bh
-    cmp al, 10
-    jge invalid
+    ; (b) ????? ????? ???
+    MOV AH, 1
+    INT 21H
+    MOV VAR1, AL       ; ASCII '2' ??? ???
+    SUB AL, 30H         ; ASCII  (2)
+    MOV BL, AL          ; BL ? ????
 
-    ; print: THE SUM OF
-    lea dx, msg2
-    mov ah, 09h
-    int 21h
+    ; ??????? ????? ???
+    MOV AH, 1
+    INT 21H
+    MOV VAR2, AL       ; ASCII '7' 
+    SUB AL, 30H         ; ASCII , (7)
 
-    ; print first number
-    mov dl, bl
-    add dl, '0'
-    mov ah, 02h
-    int 21h
+    ; ????? ??? ???
+    ADD AL, BL          ; AL = 2 + 7 = 9
+    ADD AL, 30H         ;  ('9')
+    MOV SUM, AL         ; SUM 
 
-    ; print " AND "
-    lea dx, msg3
-    mov ah, 09h
-    int 21h
+    ; (c)
+    LEA DX, MSG1
+    MOV AH, 9
+    INT 21H
 
-    ; print second number
-    mov dl, bh
-    add dl, '0'
-    mov ah, 02h
-    int 21h
-
-    ; print " IS "
-    lea dx, msg4
-    mov ah, 09h
-    int 21h
-
-    ; print sum
-    add bl, bh
-    mov dl, bl
-    add dl, '0'
-    mov ah, 02h
-    int 21h
-
-    jmp exit
-
-invalid:
-    lea dx, msg5
-    mov ah, 09h
-    int 21h
-
-exit:
-    mov ah, 4Ch
-    int 21h
-
-end main
+    ; ????????? ???
+    MOV AH, 4CH
+    INT 21H
+MAIN ENDP
+END MAIN
